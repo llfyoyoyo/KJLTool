@@ -1797,24 +1797,6 @@ async function loadJsonText(text, label) {
   }
 }
 
-async function loadDefault() {
-  const candidates = ['../jsons/6.json', './jsons/6.json', '/jsons/6.json'];
-  setStatus('正在加载默认 jsons/6.json…');
-  let lastError = null;
-  for (const url of candidates) {
-    try {
-      const res = await fetch(url);
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      const text = await res.text();
-      await loadJsonText(text, 'jsons/6.json');
-      return;
-    } catch (e) {
-      lastError = e;
-    }
-  }
-  setStatus(`自动加载失败（可手动选择 JSON 文件）：${lastError?.message || '未知错误'}`, true);
-}
-
 function bindUi() {
   el.fileInput.addEventListener('change', async () => {
     const file = el.fileInput.files?.[0];
@@ -1946,4 +1928,3 @@ function bindUi() {
 
 initThree();
 bindUi();
-loadDefault();
