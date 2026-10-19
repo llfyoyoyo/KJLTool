@@ -1786,16 +1786,21 @@ async function loadJsonText(text, label) {
 }
 
 async function loadDefault() {
-  const url = '../jsons/6.json';
+  const candidates = ['../jsons/6.json', './jsons/6.json', '/jsons/6.json'];
   setStatus('正在加载默认 jsons/6.json…');
-  try {
-    const res = await fetch(url);
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    const text = await res.text();
-    await loadJsonText(text, 'jsons/6.json');
-  } catch (e) {
-    setStatus(`自动加载失败（请用本地服务打开，或手动选择文件）：${e.message}`, true);
+  let lastError = null;
+  for (const url of candidates) {
+    try {
+      const res = await fetch(url);
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const text = await res.text();
+      await loadJsonText(text, 'jsons/6.json');
+      return;
+    } catch (e) {
+      lastError = e;
+    }
   }
+  setStatus(`自动加载失败（可手动选择 JSON 文件）：${lastError?.message || '未知错误'}`, true);
 }
 
 function bindUi() {
