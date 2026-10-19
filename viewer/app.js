@@ -1637,20 +1637,6 @@ function selectBoard(id) {
     node.classList.toggle('active', node.dataset.id === id);
   });
   showNodeInfoByMeshId(id);
-
-  const group = state.boardMeshes.get(id);
-  if (group) {
-    const box = new THREE.Box3().setFromObject(group);
-    const center = box.getCenter(new THREE.Vector3());
-    const size = box.getSize(new THREE.Vector3());
-    const dist = Math.max(size.length() * 1.2, 400);
-    const dir = state.camera.position.clone().sub(state.controls.target);
-    if (dir.lengthSq() < 1e-6) dir.set(1, 0.8, 1);
-    dir.normalize().multiplyScalar(dist);
-    state.camera.position.copy(center).add(dir);
-    state.controls.target.copy(center);
-    state.controls.update();
-  }
   requestRender();
 }
 
