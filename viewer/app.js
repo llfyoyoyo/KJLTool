@@ -1433,6 +1433,32 @@ function setMeshesHidden(ids, hidden) {
   requestRender();
 }
 
+function getSelectedHideIds() {
+  if (state.selectedNodeKey) {
+    const ids = state.descendantMeshIds.get(state.selectedNodeKey);
+    if (ids?.length) return [...ids];
+  }
+  const active = el.tree.querySelector('.tree-node.active, .tree-item.active, .tree-root-title.active');
+  if (active?.dataset.hideIds) {
+    const ids = (active.dataset.hideIds || '').split(',').filter(Boolean);
+    if (ids.length) return ids;
+  }
+  if (state.selectedId && state.boardMeshes.has(state.selectedId)) {
+    return [state.selectedId];
+  }
+  return [];
+}
+
+function hideSelectedNode() {
+  const ids = getSelectedHideIds();
+  if (!ids.length) {
+    setStatus('请先选中要隐藏的节点');
+    return;
+  }
+  setMeshesHidden(ids, true);
+  setStatus(`已隐藏选中节点（${ids.length} 个对象）`);
+}
+
 function showAllNodes() {
   for (const id of [...state.hiddenIds]) {
     const group = state.boardMeshes.get(id);
@@ -1807,6 +1833,15 @@ function bindUi() {
 
   el.fitBtn.addEventListener('click', fitCameraToScene);
   el.showAllBtn.addEventListener('click', showAllNodes);
+
+  window.addEventListener('keydown', (ev) => {
+    if (ev.key !== 'h' && ev.key !== 'H') return;
+    if (ev.ctrlKey || ev.metaKey || ev.altKey) return;
+    const tag = (ev.target?.tagName || '').toLowerCase();
+    if (tag === 'input' || tag === 'textarea' || ev.target?.isContentEditable) return;
+    ev.preventDefault();
+    hideSelectedNode();
+  });
 
   let searchTimer = null;
   el.searchInput.addEventListener('input', () => {
